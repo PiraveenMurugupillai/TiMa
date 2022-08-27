@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% block body %}
+    <div class="card">
+        <div class="card-body">
+            <form class="container {{ 'was-validated' if (form.errors | length) > 0 }}" action="" method="post" novalidate>
+                {{ form.hidden_tag() }}
+                <div class="row">
+                    <div class="col">ID:</div>
+                    <div class="col">{{ user.id }}</div>
+                </div>
+                <div class="row mt-2">
+                    <div class="col">Username:</div>
+                    <div class="col">{{ form.username(class_="form-control") }}</div>
+                    {% for error in form.username.errors %}
+                        <small class="text-danger text-end">{{ error }}</small>
+                    {% endfor %}
+                </div>
+                <div class="row mt-2">
+                    <div class="col">E-Mail:</div>
+                    <div class="col">{{ form.email(class_="form-control") }}</div>
+                    {% for error in form.email.errors %}
+                        <small class="text-danger text-end">{{ error }}</small>
+                    {% endfor %}
+                </div>
+                <div class="row mt-2">
+                    <div class="col">Company:</div>
+                    <div class="col">{{ form.company(class_="form-control") }}</div>
+                    {% for error in form.company.errors %}
+                        <small class="text-danger text-end">{{ error }}</small>
+                    {% endfor %}
+                </div>
+                <div class="row mt-2">
+                    <div class="col">Job:</div>
+                    <div class="col">{{ form.job(class_="form-control") }}</div>
+                    {% for error in form.job.errors %}
+                        <small class="text-danger text-end">{{ error }}</small>
+                    {% endfor %}
+                </div>
+                <div class="row mt-3">
+                    <div class="col"></div>
+                    <div class="col text-end">
+                        <a href="{{ url_for('user_page') }}" class="btn btn-outline-danger me-3">Cancel</a>
+                        {{ form.submit(class_="btn btn-primary") }}
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+{% endblock %}

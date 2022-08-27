@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block body %}
+    <h1>Sign In</h1>
+    <form class="{{ 'was-validated' if (form.errors | length) > 0 }}" action="" method="post" novalidate>
+        {{ form.hidden_tag() }}
+        <p>
+            {{ form.username.label(class_="form-label") }}
+            {{ form.username(class_="form-control") }}
+            {% for error in form.username.errors %}
+                <small class="text-danger">{{ error }}</small>
+            {% endfor %}
+        </p>
+        <p>
+            {{ form.password.label(class_="form-label") }}
+            {{ form.password(class_="form-control") }}
+            {% for error in form.password.errors %}
+                <small class="text-danger">{{ error }}</small>
+            {% endfor %}
+        </p>
+        <p>{{ form.remember_me(class_="form-check-input mr-2") }} {{ form.remember_me.label(class_="form-check-label") }}</p>
+        <p>{{ form.submit(class_="btn btn-primary") }}</p>
+    </form>
+    <p>New User? <a href="{{ url_for('register_page') }}">Click to Register!</a></p>
+    <hr />
+    <code>{{ hostname }}</code>
+{% endblock %}

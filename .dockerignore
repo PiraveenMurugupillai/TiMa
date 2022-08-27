@@ -1,0 +1,17 @@
+# Editors
+.idea/
+.vscode/
+**/*.iml
+
+# Virtual Environment
+venv/
+script-venv/
+
+# Docker
+**/*.Dockerfile
+
+migrations/
+logs/
+
+.flaskenv
+app.db

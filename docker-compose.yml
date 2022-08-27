@@ -1,0 +1,56 @@
+version: "3.3"
+
+services:
+  webapp:
+    image: 805277/tima
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: ./startup.sh
+    environment:
+      - FLASK_APP=tima.py
+      - DATABASE=tima
+      - DATABASE_USER=tima-db-user
+      - DATABASE_PASSWORD_FILE=/run/secrets/db_user_pwd
+      - SECRET_KEY_FILE=/run/secrets/secret_key
+    ports:
+      - "5000:5000"
+    links:
+      - mariadb
+    depends_on:
+      - mariadb
+    volumes:
+      - log-volume:/app/logs
+    secrets:
+      - db_user_pwd
+      - secret_key
+    networks:
+      - tima_network
+
+  mariadb:
+    image: mariadb:10.9.2
+    restart: unless-stopped
+    environment:
+      - MYSQL_RANDOM_ROOT_PASSWORD=true
+      - MYSQL_DATABASE=tima
+      - MYSQL_USER=tima-db-user
+      - MYSQL_PASSWORD_FILE=/run/secrets/db_user_pwd
+    volumes:
+      - db-volume:/var/lib/mysql
+    secrets:
+      - db_user_pwd
+    networks:
+      - tima_network
+
+secrets:
+  secret_key:
+    file: secrets/secret_key.txt
+  db_user_pwd:
+    file: secrets/db_user_pwd.txt
+
+volumes:
+  db-volume:
+  log-volume:
+
+networks:
+  tima_network:
