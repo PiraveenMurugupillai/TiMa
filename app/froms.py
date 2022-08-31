@@ -2,9 +2,8 @@ import datetime
 from flask_login import current_user
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, BooleanField, SubmitField, EmailField, DateField, FloatField
-from wtforms.validators import DataRequired, Email, EqualTo, ValidationError
+from wtforms.validators import DataRequired, Email, EqualTo, NumberRange, Length, ValidationError
 from wtforms.widgets import NumberInput
-
 from app.models import User, WorkingHours
 
 
@@ -22,6 +21,7 @@ class RegistrationForm(FlaskForm):
     password2 = PasswordField('Repeat Password', validators=[DataRequired(), EqualTo('password')])
     company = StringField('Company', validators=[DataRequired()])
     job = StringField('Job', validators=[DataRequired()])
+    target_time = FloatField('Target hours per day', validators=[DataRequired(), NumberRange(min=0, max=24)], widget=NumberInput(min=0, max=24))
     submit = SubmitField('Register')
 
     def validate_username(self, username):
@@ -37,18 +37,19 @@ class RegistrationForm(FlaskForm):
 
 class WorkingHoursForm(FlaskForm):
     date = DateField('Date', validators=[DataRequired()], default=datetime.datetime.utcnow())
-    hours = FloatField('Worked Hours', validators=[DataRequired()], widget=NumberInput(min=0, max=24))
+    hours = FloatField('Worked Hours', validators=[DataRequired(), NumberRange(min=0, max=24)], widget=NumberInput(min=0, max=24))
+    comment = StringField('Comment')
     submit = SubmitField('Add')
 
     def validate_date(self, date):
         hour = WorkingHours.query.filter_by(user_id=current_user.id, date=date.data).first()
         if hour is not None:
-            print('There is already an entry for this date.', flush=True)
             raise ValidationError('There is already an entry for this date.')
 
 
 class EditWorkingHoursForm(FlaskForm):
-    hours = FloatField('Worked Hours', validators=[DataRequired()], widget=NumberInput(min=0, max=24))
+    hours = FloatField('Worked Hours', validators=[DataRequired(), NumberRange(min=0, max=24)], widget=NumberInput(min=0, max=24))
+    comment = StringField('Comment', validators=[Length(max=64)])
     submit = SubmitField('Save')
 
 
@@ -57,6 +58,7 @@ class EditUserForm(FlaskForm):
     email = EmailField('Email', validators=[DataRequired(), Email()])
     company = StringField('Company', validators=[DataRequired()])
     job = StringField('Job', validators=[DataRequired()])
+    target_time = FloatField('Target hours per day', validators=[DataRequired(), NumberRange(min=0, max=24)], widget=NumberInput(min=0, max=24))
     submit = SubmitField('Save')
 
     def validate_username(self, username):
@@ -70,3 +72,7 @@ class EditUserForm(FlaskForm):
             user = User.query.filter_by(email=email.data).first()
             if user is not None:
                 raise ValidationError('Please use a different email address.')
+
+
+class EmptySubmitForm(FlaskForm):
+    submit = SubmitField()

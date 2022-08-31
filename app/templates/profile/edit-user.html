@@ -37,6 +37,13 @@
                         <small class="text-danger text-end">{{ error }}</small>
                     {% endfor %}
                 </div>
+                <div class="row mt-2">
+                    <div class="col">Target Hours:</div>
+                    <div class="col">{{ form.target_time(class_="form-control") }}</div>
+                    {% for error in form.target_time.errors %}
+                        <small class="text-danger text-end">{{ error }}</small>
+                    {% endfor %}
+                </div>
                 <div class="row mt-3">
                     <div class="col"></div>
                     <div class="col text-end">

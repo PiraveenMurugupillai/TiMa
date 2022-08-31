@@ -46,6 +46,13 @@
                 <small class="text-danger">{{ error }}</small>
             {% endfor %}
         </p>
+        <p>
+            {{ form.target_time.label(class_="form-label") }}
+            {{ form.target_time(class_="form-control") }}
+            {% for error in form.target_time.errors %}
+                <small class="text-danger">{{ error }}</small>
+            {% endfor %}
+        </p>
         <p>{{ form.submit(class_="btn btn-primary") }}</p>
     </form>
     <p>Already have an account? <a href="{{ url_for('login_page') }}">Click to Login!</a></p>

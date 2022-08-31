@@ -10,6 +10,7 @@ class User(UserMixin, db.Model):
     password_hash = db.Column(db.String(128))
     company = db.Column(db.String(32))
     job = db.Column(db.String(32))
+    target_time = db.Column(db.Float)
     working_hours = db.relationship('WorkingHours', backref='employee', lazy='dynamic')
 
     def set_password(self, password):
@@ -31,6 +32,7 @@ class WorkingHours(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     date = db.Column(db.Date, index=True)
     working_hours = db.Column(db.Float)
+    comment = db.Column(db.String(64))
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
 
     def __repr__(self):
