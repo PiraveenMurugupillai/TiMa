@@ -7,6 +7,7 @@ migrations/
 
 # Python virtual enviroment
 venv/
+**/__pycache__/
 
 # local mock database
 **/*.db
