@@ -83,8 +83,8 @@ def working_hours_page():
         .all()
     all_hours = WorkingHours.query.filter_by(user_id=current_user.id).all()
     all_dates = list(map(lambda x: x.date, all_hours))
-    minimal_date = min(all_dates)
-    maximal_date = max(all_dates)
+    minimal_date = min(all_dates, default=current_date)
+    maximal_date = max(all_dates, default=current_date)
 
     years = []
     for year in range(minimal_date.year, maximal_date.year + 1):
