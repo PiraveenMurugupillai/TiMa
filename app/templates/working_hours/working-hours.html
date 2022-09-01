@@ -82,7 +82,7 @@
         </form>
     </div>
     <div class="container mt-5">
-        <h3>Records of {{ months[given_month] }} {{ given_year }}</h3>
+        <h3>Records of {{ months[given_month - 1] }} {{ given_year }}</h3>
         {% if (hours | length) > 0 %}
             <table class="table table-hover">
                 <thead>
