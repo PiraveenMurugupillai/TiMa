@@ -178,8 +178,8 @@ def delete_working_hours_page(working_hours_id):
 def user_page():
     user = User.query.filter_by(username=current_user.username).first_or_404()
     total_hours = db.session.query(func.count(WorkingHours.date), func.sum(WorkingHours.working_hours)).filter_by(user_id=current_user.id).all()[0]
-    (worked_days, worked_hours) = total_hours or (0, 0)
-    worked_hours = round(worked_hours, 2)
+    (worked_days, worked_hours) = total_hours
+    worked_hours = round(worked_hours or 0, 2)
     flextime = round(worked_hours - (worked_days * user.target_time), 2)
     return render_template('profile/user.html', user=user, flextime=flextime, worked_hours=worked_hours)
 
