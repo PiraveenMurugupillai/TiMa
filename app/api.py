@@ -1,7 +1,7 @@
 from app import app, db
 from app.models import User, WorkingHours
 import datetime
-from flask import abort, jsonify, request
+from flask import jsonify, request
 from flask_httpauth import HTTPBasicAuth, HTTPTokenAuth
 
 basic_auth = HTTPBasicAuth()
@@ -13,26 +13,22 @@ def verify_password(username, password):
     user = User.query.filter_by(username=username).first()
     if user and user.check_password(password):
         return user
-    return None
+    return jsonify({'error': 'Username or password is wrong.'}), 400
 
 
 @basic_auth.error_handler
 def basic_auth_error(status):
-    response = jsonify()
-    response.status_code = status
-    return response
+    return '', status
 
 
 @token_auth.verify_token
 def verify_token(token):
-    return User.check_token(token) if token else None
+    return User.check_token(token) if token else jsonify({'error': 'Invalid authorization token.'}), 401
 
 
 @token_auth.error_handler
 def token_auth_error(status):
-    response = jsonify()
-    response.status_code = status
-    return response
+    return jsonify({'error': 'Invalid authorization token.'}), status
 
 
 @app.route('/api/tokens', methods=['POST'])
@@ -40,7 +36,7 @@ def token_auth_error(status):
 def get_token():
     token = basic_auth.current_user().get_token()
     db.session.commit()
-    return jsonify({ 'token': token })
+    return jsonify({'token': token})
 
 
 @app.route('/api/tokens', methods=['DELETE'])
@@ -49,6 +45,13 @@ def revoke_token():
     token_auth.current_user().revoke_token()
     db.session.commit()
     return '', 204
+
+
+@app.route('/api/users', methods=['GET'])
+@token_auth.login_required
+def get_user():
+    data = User.query.get_or_404(token_auth.current_user().id).to_dict()
+    return jsonify(data)
 
 
 @app.route('/api/users', methods=['POST'])
@@ -65,42 +68,20 @@ def create_new_user():
         existing_username = User.query.filter_by(username=username).first()
         existing_email = User.query.filter_by(username=username).first()
         if (existing_username is not None) or (existing_email is not None):
-            response = jsonify({ 'error': 'Please use a different username or email' })
-            response.status_code = 400
-            return response
+            return jsonify({'error': 'Please use a different username or email'}), 400
 
         if float(target_time) < 0 or float(target_time) > 24:
-            response = jsonify({ 'error': 'Please enter target time in a valid range (0 to 24)' })
-            response.status_code = 400
-            return response
+            return jsonify({'error': 'Please enter target time in a valid range (0 to 24)'}), 400
 
         user = User(username=username, email=email, company=company, job=job, target_time=target_time)
         user.set_password(password)
         db.session.add(user)
         db.session.commit()
 
-        response = jsonify(user.to_dict())
-        response.status_code = 201
-        return response
-    except:
-        abort(400)
-
-
-@app.route('/api/users', methods=['GET'])
-@token_auth.login_required
-def get_user():
-    data = User.query.get_or_404(token_auth.current_user().id).to_dict()
-    return jsonify(data)
-
-
-@app.route('/api/users/<int:id>', methods=['GET'])
-@token_auth.login_required
-def get_user_by_id(id):
-    if token_auth.current_user().id != id:
-        return abort(403)
-
-    data = User.query.get_or_404(id).to_dict()
-    return jsonify(data)
+        return jsonify(user.to_dict()), 201
+    except Exception as error:
+        app.logger.error(error)
+        return '', 400
 
 
 @app.route('/api/users', methods=['PUT'])
@@ -117,12 +98,12 @@ def update_user():
             if key == 'username':
                 existing_user = User.query.filter_by(username=user_data['username']).first()
                 if existing_user is not None and existing_user.id != token_auth.current_user().id:
-                    return abort(400)
+                    return jsonify({'error': 'Given username is already taken. Choose another one.'}), 400
 
             if key == 'email':
                 existing_user = User.query.filter_by(email=user_data['email']).first()
                 if existing_user is not None and existing_user.id != token_auth.current_user().id:
-                    return abort(400)
+                    return jsonify({'error': 'Given e-mail address is already taken. Choose another one.'}), 400
 
             setattr(user, key, user_data[key])
 
@@ -142,8 +123,8 @@ def get_working_hours():
 def get_working_hours_by_id(id):
     data = WorkingHours.query.get_or_404(id).to_dict()
 
-    if token_auth.current_user().id != data.user_id:
-        return abort(403)
+    if token_auth.current_user().id != data['user_id']:
+        return jsonify({'error': 'You are only allowed to see your own working hours entries.'}), 403
 
     return jsonify(data)
 
@@ -159,12 +140,18 @@ def add_working_hours():
         if 'comment' in hours.keys():
             comment = hours['comment']
 
-        working_hours = WorkingHours(date=date, working_hours=working_hours, comment=comment, user_id=token_auth.current_user().id)
+        existing_hours = WorkingHours.query.filter_by(user_id=token_auth.current_user().id, date=date).first()
+        if existing_hours is not None:
+            return jsonify({'error': 'There is already an entry for given date.'}), 400
+
+        working_hours = WorkingHours(date=date, working_hours=working_hours, comment=comment,
+                                     user_id=token_auth.current_user().id)
         db.session.add(working_hours)
         db.session.commit()
-        return jsonify(working_hours.to_dict())
-    except:
-        return abort(400)
+        return jsonify(working_hours.to_dict()), 201
+    except Exception as error:
+        app.logger.error(error)
+        return '', 400
 
 
 @app.route('/api/working-hours/<int:id>', methods=['PUT'])
@@ -177,10 +164,10 @@ def update_working_hours(id):
 
     hours_entry = WorkingHours.query.filter_by(user_id=token_auth.current_user().id, id=id).first()
     if hours_entry is None:
-        return abort(404)
+        return jsonify({'error': 'There is no entry for given id.'}), 404
 
     if 'working_hours' in hours_data.keys():
-        if hours_data['working_hours'] >= 0 and hours_data['working_hours'] <= 24:
+        if 0 <= hours_data['working_hours'] <= 24:
             setattr(hours_entry, 'working_hours', hours_data['working_hours'])
 
     if 'comment' in hours_data.keys():
@@ -195,10 +182,8 @@ def update_working_hours(id):
 def delete_working_hours(id):
     hours_entry = WorkingHours.query.filter_by(user_id=token_auth.current_user().id, id=id).first()
     if hours_entry is None:
-        return abort(404)
+        return jsonify({'error': 'There is no entry for given id.'}), 404
 
     db.session.delete(hours_entry)
     db.session.commit()
-    response = jsonify()
-    response.status_code = 204
-    return response
+    return '', 204
