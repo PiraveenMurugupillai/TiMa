@@ -1,17 +1,21 @@
-# Editors
-.idea/
-.vscode/
-**/*.iml
-
-# Virtual Environment
+# Python virtual enviroment
 venv/
-script-venv/
+**/__pycache__/
 
 # Docker
-**/*.Dockerfile
+**/Dockerfile
 
-migrations/
+# logs
 logs/
+**/*.log*
 
-.flaskenv
-app.db
+# DB migrations
+migrations/
+
+# local mock database
+**/*.db
+
+# IDE & Editors
+.vscode/
+.idea/
+**/*.iml

@@ -4,9 +4,11 @@ services:
   webapp:
     image: 805277/tima
     build:
+      # build current folder according to description in Dockerfile
       context: .
       dockerfile: Dockerfile
-    command: ./startup.sh
+    command: ./startup.sh # startup script to ensure correct initialization of database
+    restart: unless-stopped
     environment:
       - FLASK_APP=tima.py
       - DATABASE=tima
@@ -31,10 +33,10 @@ services:
     image: mariadb:10.9.2
     restart: unless-stopped
     environment:
-      - MYSQL_RANDOM_ROOT_PASSWORD=true
-      - MYSQL_DATABASE=tima
-      - MYSQL_USER=tima-db-user
-      - MYSQL_PASSWORD_FILE=/run/secrets/db_user_pwd
+      - MYSQL_RANDOM_ROOT_PASSWORD=true # no one knows the root access to the database
+      - MYSQL_DATABASE=tima # creates table tima
+      - MYSQL_USER=tima-db-user # creates user tima-db-user'
+      - MYSQL_PASSWORD_FILE=/run/secrets/db_user_pwd # password for the user to be created is in the secret file
     volumes:
       - db-volume:/var/lib/mysql
     secrets:
