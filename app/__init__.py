@@ -24,4 +24,4 @@ app.logger.setLevel(logging.INFO)
 app.logger.info('TiMa startup')
 
 
-from app import routes, models, errors
+from app import routes, models, errors, api
