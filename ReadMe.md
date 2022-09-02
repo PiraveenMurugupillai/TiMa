@@ -1,10 +1,11 @@
 # Praxisarbeit – VCID.IA1A.PA
 
-## Anleitung zum Starten der Applikation
+## Anleitung zum Starten der Applikation auf der lokalen Umgebung
 
 ### Starten mit Docker
-Am einfachsten lässt sich die Applikation über den Docker Desktop bzw. `docker-compose` starten.
-Hierfür müssen Sie lediglich im Terminal bzw. Kommandozeile in diesen Ordner navigieren und den Docker Service starten mit:
+
+Clonen Sie das Repository und navigieren Sie im Terminal bzw. Kommandozeile (Konsole) zum geclonten Repository. 
+Starten Sie die Docker Services mit:
 ```shell
 docker-compose up -d
 ```
@@ -20,7 +21,7 @@ docker-compose down
 ### Starten auf Windows
 
 Falls Sie die Applikation ohne Unterstützung von Docker starten möchten, führen Sie folgende Befehle in 
-Kommandozeile aus. Bitte beachten Sie auch hier, dass Sie sich im aktuellen Ordner befinden in der Konsole. 
+Kommandozeile aus. Bitte beachten Sie auch hier, dass Sie sich in der Konsole im geclonten Repostory-Ordner befinden. 
 Es wird davon ausgegangen, dass Sie [Python Version 3](https://www.python.org/downloads/) & [virtualenv](https://pypi.org/project/virtualenv/) installiert haben.
 ```shell
 virtualenv venv
@@ -38,7 +39,7 @@ flask run
 ### Starten auf MacOS oder Linux
 
 Zum starten der Applikation, führen Sie folgende Schritte im Terminal durch. Vergewissern Sie sich, dass Sie in der Konsole 
-in diesen Ordner navigiert sind. Es wird davon ausgegangen, dass Sie [Python Version 3](https://www.python.org/downloads/) & [virtualenv](https://pypi.org/project/virtualenv/) installiert haben.
+in der geclonten Repository-Ordner befinden. Es wird davon ausgegangen, dass Sie [Python Version 3](https://www.python.org/downloads/) & [virtualenv](https://pypi.org/project/virtualenv/) installiert haben.
 ```shell
 virtualenv venv
 source ./venv/bin/activate
@@ -58,6 +59,16 @@ Dieses Repository beinhaltet eine einfache Webapplikation programmiert in Python
 relationale Datenbank MariaDB. Die Webapplikation wurde von mir selbst programmiert. Gewisse Teile der Applikation wurden 
 vom [Microblog](https://github.com/miguelgrinberg/microblog) von Miguel Grinberg übernommen. Es betrifft hauptsächlich 
 die Struktur der Dateien und der Registrierung- & Login-Mechanismus.
+
+### Was ist TiMa?
+
+TiMa ist eine einfache Webapplikation, welche Nutzern die Möglichkeit gibt, geleistete Arbeitsstunden zu erfassen. 
+Hierfür können sich Nutzer registrieren und anschliessend einloggen, um *nur* ihre eigenen Daten einsehen zu können. 
+Die Nutzer können für jeden Tag maximal *einen* Eintrag erfassen, in welchem Sie die geleisteten Stunden eintragen. 
+Optional kann auch für jeden Eintrag ein Kommentar erfasst werden. Die erfassten Stunden lassen sich einsehen, 
+bearbeiten oder wenn nötig löschen. Auf einer Profil-Übersicht sind allgemeine Informationen des Nutzers ersichtlich. 
+Die Nutzer sehen ihre Eckdaten aus der Registrierung, aber auch wie viele Arbeitsstunden bereits total geleistet wurde. 
+Auch sieht man, wie viel Überzeit oder Minuszeit man derzeit hat (Flextime).
 
 ### Autor
 
