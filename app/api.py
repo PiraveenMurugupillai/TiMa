@@ -38,7 +38,7 @@ def verify_token(token):
     """
     This is a basic handler to verify if a given token is correct.
     """
-    return User.check_token(token) if token else jsonify({'error': 'Invalid authorization token.'}), 401
+    return User.check_token(token) if token else None
 
 
 @token_auth.error_handler
@@ -55,9 +55,13 @@ def get_token():
     """
     This method responses to a user with an authorization token, if given credentials are correct
     """
-    token = basic_auth.current_user().get_token()
-    db.session.commit()
-    return jsonify({'token': token})
+    try:
+        token = basic_auth.current_user().get_token()
+        db.session.commit()
+        return jsonify({'token': token})
+    except Exception as error:
+        print(error, flush=True)
+        return jsonify({'error': 'Invalid authorization!'}), 401
 
 
 @app.route('/api/tokens', methods=['DELETE'])
@@ -66,9 +70,13 @@ def revoke_token():
     """
     This method revokes the current active token, so that it is not usable anymore
     """
-    token_auth.current_user().revoke_token()
-    db.session.commit()
-    return '', 204
+    try:
+        token_auth.current_user().revoke_token()
+        db.session.commit()
+        return '', 204
+    except Exception as error:
+        print(error, flush=True)
+        return jsonify({'error': 'Invalid authorization!'}), 401
 
 
 @app.route('/api/users', methods=['GET'])
